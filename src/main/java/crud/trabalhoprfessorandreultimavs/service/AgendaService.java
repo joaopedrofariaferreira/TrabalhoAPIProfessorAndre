@@ -1,7 +1,10 @@
-
 package crud.trabalhoprfessorandreultimavs.service;
 
 import crud.trabalhoprfessorandreultimavs.entity.Agenda;
+import crud.trabalhoprfessorandreultimavs.entity.Cliente;
+import crud.trabalhoprfessorandreultimavs.exception.FuncionarioNaoEncontradoException;
+import crud.trabalhoprfessorandreultimavs.exception.ServicoNaoEncontradoException;
+import crud.trabalhoprfessorandreultimavs.exception.UsuarioNaoEncontradoException;
 import crud.trabalhoprfessorandreultimavs.repository.AgendaRepository;
 import crud.trabalhoprfessorandreultimavs.repository.FuncionarioRepository;
 import crud.trabalhoprfessorandreultimavs.repository.ServicoRepository;
@@ -38,15 +41,15 @@ public class AgendaService {
     public Agenda createAgenda(Agenda agenda) {
         if (agenda.getFuncionario() != null && agenda.getFuncionario().getId() != null) {
             agenda.setFuncionario(funcionarioRepository.findById(agenda.getFuncionario().getId())
-                    .orElseThrow(() -> new IllegalArgumentException("Funcionario não encontrado")));
+                    .orElseThrow(() -> new FuncionarioNaoEncontradoException("Funcionario não encontrado com ID: " + agenda.getFuncionario().getId())));
         }
         if (agenda.getServico() != null && agenda.getServico().getId() != null) {
             agenda.setServico(servicoRepository.findById(agenda.getServico().getId())
-                    .orElseThrow(() -> new IllegalArgumentException("Servico não encontrado")));
+                    .orElseThrow(() -> new ServicoNaoEncontradoException("Servico não encontrado com ID: " + agenda.getServico().getId())));
         }
         if (agenda.getUsuario() != null && agenda.getUsuario().getId() != null) {
             agenda.setUsuario(usuarioRepository.findById(agenda.getUsuario().getId())
-                    .orElseThrow(() -> new IllegalArgumentException("Usuario não encontrado")));
+                    .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuario não encontrado com ID: " + agenda.getUsuario().getId())));
         }
         agenda.setStatus(false);
         return agendaRepository.save(agenda);
@@ -76,5 +79,14 @@ public class AgendaService {
             return agendaRepository.save(updatedAgenda);
         }
         return null;
+    }
+
+    public boolean isClienteExists(Cliente cliente) {
+        if (agendaRepository.findAll().contains(cliente)) {
+            return true ;
+        }
+        else {
+            return false;
+        }
     }
 }
